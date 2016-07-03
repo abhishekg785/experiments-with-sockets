@@ -1,0 +1,96 @@
+<html>
+	<head>
+		<title>simple chat app using socket.io</title>
+		<style>
+                      #chat{
+			      height:500px;
+		      }
+		      #chatWrap{
+			      float:left;
+			      border:1px solid black;
+		      }
+		      #contentWrap{
+			      display:none;
+		      }
+		</style>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	</head>
+	<body>
+		<div id = 'nickWrap'>
+			<p>Enter a username</p>
+			<p id = 'nickError'></p>
+			<form id = 'setNick'>
+				<input size = '35' id = 'nickname'/>
+				<input type = 'submit'/>
+			</form>
+		</div>
+		<div id = 'contentWrap'>
+			<div id = 'chatWrap'>			
+				<div id = 'chat'></div>
+		                <form id = 'sendMessage'>
+					<input size = '35' id = 'message'/>
+					<input type = 'submit'/>
+			        </form>
+			</div>
+			<div id = 'users'>
+			</div>
+		</div>
+		<script>
+$(window).load(function(){
+	var $chat = $('#chat'),
+	    $messageForm = $('#sendMessage'),
+	    $message = $('#message'),
+	    $nickBox = $('#nickname'),
+	    $nickWrap = $('#nickWrap'),
+	    $nickError = $('#nickError'),
+	    $nickForm = $('#setNick'),
+	    $contentWrap = $('#contentWrap'),
+	    $chatWrap = $('#chatWrap'),
+	    $users = $('#users');
+
+	var socket = io.connect();
+
+	$nickForm.submit(function(e){
+		e.preventDefault();
+		socket.emit('new user',$nickBox.val(),function(data){
+			if(data == true){
+				$nickWrap.hide();
+				$contentWrap.show();
+			}
+			else{
+				$nickError.html('username has been taken');
+			}
+		});
+		$nickBox.val('');
+	});
+
+	
+	$messageForm.submit(function(e){
+		e.preventDefault();
+		//create a socket event
+		socket.emit('send message',$message.val());
+		$message.val('');
+	});
+
+	socket.on('new message',function(data){
+		$chat.append('<b>' + data.nick + '</b>' + ':' + data.msg + '<br/>');
+	});
+
+	socket.on('usernames',function(data){
+		$users.empty();
+		var len = data.length;
+		if(len){
+			data.forEach(function(user){
+				$users.append(user + '<br/>');
+			});
+		}
+		else{
+			$users.append('<h1>No users yet!!</h1>');
+		}
+	});
+	
+});
+		</script>
+	</body>
+</html>

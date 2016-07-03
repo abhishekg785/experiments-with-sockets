@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<title>Simple socket.io demmo</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	</head>
+	<body>
+		<form id = 'messageForm'>
+			<textarea id = 'message' cols = '20' rows = '5' placeholder = 'enter message here'>
+
+			</textarea><br/>
+			<input type = 'submit' id = 'postMessage'/>
+		</form>
+		<div id = 'displayMessage'></div>
+		<script>
+      var socket = io.connect('http://localhost:3000');
+          $messageForm = $('#messageForm'),
+			    $message = $('#message'),
+			    $postMessage = $('#postMessage'),
+			    $displayMessage = $('#displayMessage');
+
+
+      $messageForm.submit(function(e){
+	      e.preventDefault();
+	      socket.emit('new message',$message.val());
+      });
+
+
+socket.on('new message',function(data){
+	console.log('new message event');
+	console.log(data);
+});
+
+socket.on('display message',function(data){
+	console.log('diplay message');
+	$displayMessage.append(data + '<br/>');
+});
+
+
+
+		</script>
+	</body>
+</html>
